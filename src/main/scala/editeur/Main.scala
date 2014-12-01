@@ -3,11 +3,11 @@ package editeur
 object Main {
   def main(args: Array[String]) : Unit = {
   	//println("Hello")
-    /*
+    
     var ui = new UIEditeur
     ui.visible = true
-  	*/
-    
+  	
+    /*
     Editeur.buffer.text = "aaaaa bbkfs fdnskl"
     Editeur.cursor = 5
     println(Editeur.buffer.text)
@@ -21,7 +21,7 @@ object Main {
 
     println("Coller : ")
     println(Editeur.buffer.text)
-
+    */
     /*
     println(Editeur.buffer.text)
     Editeur.pressLetter('a')
@@ -41,6 +41,6 @@ object Main {
 
 
     
-    println("\n\nhisto : " +Editeur.histo)
+    //println("\n\nhisto : " +Editeur.histo)
   }
 }

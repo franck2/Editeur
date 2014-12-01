@@ -11,7 +11,7 @@ object Editeur {
   var cursorSelectionEnd = 0
   var clipboard = "" 
   
-  var actionCourante = new Action
+  var actionCourante : ActionTrait = null
   
   var buffer = new Buffer
   
@@ -19,16 +19,39 @@ object Editeur {
   
   var maj = false
 
-  var obs : Array[UIEditeur]= Array()
+  var obs : Array[UIEditeur] = Array()
   
   def pressLetter(letter : Char){
+
+    /*
+    // if actionCourante isn't a ActionInsert, save actionCourante
+    if (!actionCourante.isInstanceOf[ActionInsert] ){
+      histo.doAction(actionCourante)
+      actionCourante=null
+    } 
+
+    // ac take a new ActionInsert or casted actionCourante to use ActionInsert's methods
+    var ac = new ActionInsert
+    if (actionCourante != null)
+      ac = actionCourante.asInstanceOf[ActionInsert]     
+    
+    if (actionCourante == null)
+      ac = new ActionInsert
+    else if (actionCourante.isInstanceOf[ActionInsert])
+      ac = actionCourante.asInstanceOf[ActionInsert]
+    else
+    */
+
+    var ac = getActionInType(new ActionInsert)
     
     buffer.add(letter.toString(), cursor)
     
-    actionCourante.str += letter
-    if (actionCourante.startPos == -1)
-      actionCourante.startPos = cursor
-     
+    ac.str += letter
+    if (ac.startPos == -1)
+      ac.startPos = cursor
+    
+    actionCourante = ac
+
     cursor+=1
 
     update()
@@ -40,12 +63,13 @@ object Editeur {
     
     histo.doAction(actionCourante)
     
-    actionCourante = new Action
-    actionCourante.str += sep
-    actionCourante.startPos = cursor
-    histo.doAction(actionCourante)
+    var ac = new ActionInsert
+    ac.str += sep
+    ac.startPos = cursor
+    histo.doAction(ac)
     
-    actionCourante = new Action
+    //?? 
+    actionCourante = null
     
     cursor+=1
 
@@ -53,6 +77,15 @@ object Editeur {
   }
   
   def coller(){
+
+    histo.doAction(actionCourante)
+    actionCourante=null
+
+    histo.doAction(new ActionInsert{
+      str = clipboard
+      startPos = cursor
+    })
+
     buffer.add(clipboard, cursor)
     cursor+= clipboard.length()
 
@@ -79,9 +112,9 @@ object Editeur {
   }
   
 
-  def doAction(a : Action){
+  def doAction(a : ActionTrait){
     histo.doAction(actionCourante)
-    actionCourante = new Action
+    actionCourante = null
     a.exec()
     histo.doAction(a)
   }
@@ -98,6 +131,16 @@ object Editeur {
   def update() { 
     for (o <- obs) o.update() 
   }
+
+
+  def getActionInType[T](a : T) : T = {
+    if (actionCourante == null || !actionCourante.isInstanceOf[T]){
+      histo.doAction(actionCourante)
+      a
+    }else 
+      actionCourante.asInstanceOf[T]
+  } 
+
 
   /*
   def toMajIfNeeded(c :Char) : Char = { 
