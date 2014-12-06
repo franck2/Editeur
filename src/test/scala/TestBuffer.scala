@@ -43,7 +43,6 @@ class TestBuffer{
 
   @Test def verifyGetSub{
   	buf.add("abcd",0)
-  	println("get sub" + buf.getSubstring(1,2))
   	assert(buf.getSubstring(1,2)=="b")
   }
 
@@ -59,14 +58,7 @@ class TestBuffer{
 
   @Test def verifyGetSubInvalidInput{
   	buf.add("abcdef",0)
-  	assert(buf.getSubstring(-1,5)=="")
-  }
-
-  //Buffer.efface
-  @Test def verifyEfface{
-  	buf.add("aaaab",0)
-  	buf.efface()
-  	assert(buf.text=="aaaa")
+  	assert(buf.getSubstring(-1,5) =="")
   }
 
   //Beffer.remove

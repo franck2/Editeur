@@ -1,33 +1,50 @@
 package editeur
 
+import action._
+
 class Histo {
 
-  var actions_do :  Array[ActionTrait]= Array()
-  var actions_undo :  Array[ActionTrait]= Array()
+  var pile_do :  Array[ActionTrait]= Array()
+  var pile_undo :  Array[ActionTrait]= Array()
   
   override def toString(): String = {
-    var str = "do {" 
-    actions_do.foreach { str += _.toString() + "\n"} 
-    str += "}, undo {"
-    actions_undo.foreach { str += _.toString() + "\n"} 
+    var str = "do {\n" 
+    pile_do.foreach { str += _.toString() + "\n"} 
+    str += "\n}, undo {\n"
+    pile_undo.foreach { str += _.toString() + "\n"} 
     str += "}"
     return str
   }
   
-  // => empileActionDo
-  def doAction(ac : ActionTrait){
-    actions_do :+= ac
-    actions_undo = Array()
+  def empileActionDo(ac : ActionTrait, eraseUndo:Boolean = true){
+    pile_do :+= ac
+    if (eraseUndo)
+      erasePileUndo
+  }
+  def empileActionUndo(ac : ActionTrait){
+    pile_undo :+= ac
   }
   
-  // => depileActionUndo
-  def undoAction(){
-    val last = actions_do.last
-    actions_do = actions_do.dropRight(1)
-    actions_undo :+= last
+  def depileActionDo(){
+    pile_do = pile_do.dropRight(1)
+  }
+  def depileActionUndo(){
+    pile_undo = pile_undo.dropRight(1)
+  }
+  def erasePileUndo(){
+    pile_undo = Array()
   }
 
   //verif
-  def getLastDo() : ActionTrait = actions_do.last
+  def getLastDo() : Option[ActionTrait] = {
+    if( pile_do.length>0)
+      return Option(pile_do.last)
+    return Option(null)
+  }
+  def getLastUndo() : Option[ActionTrait] = {
+    if( pile_undo.length>0)
+      return Option(pile_undo.last)
+    return Option(null)
+  }
 
 }

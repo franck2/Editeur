@@ -100,7 +100,7 @@
 					</descriptorRefs>
 					<archive>
 						<manifest>
-							<mainClass>editeur.Main</mainClass>
+							<mainClass>Main</mainClass>
 						</manifest>
 					</archive>
 				</configuration>
