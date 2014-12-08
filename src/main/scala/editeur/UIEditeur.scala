@@ -6,19 +6,24 @@ import scala.swing.event._
 
 import action._
 
-
+/** User Interface showing the content of a [[editeur.Editeur]]
+* @param editeur the editeur to interact with
+*/
 class UIEditeur(editeur : Editeur) extends MainFrame with Observator {
   
+  /** Constructor with default parameter */
   def this() = this(new Editeur)
+
+  /** Add itself as Observator of its Editeur*/
   editeur.addObservator(this)
 
   preferredSize = new Dimension(500, 500)
   title = "Editeur de texte"
   
+  /** Display the content of editeur.beffer in a read-only textarea*/
   val bufferContent = new EditorPane(){
     preferredSize = new Dimension(320, 320)
     editable = false
-    //deafTo(keys)
     caret.position = 0
     caret.visible = true
   }
@@ -28,6 +33,7 @@ class UIEditeur(editeur : Editeur) extends MainFrame with Observator {
   val selBeginLabel = new Label("")
   val selEndLabel = new Label("")
   
+  /** Informations about cursors and clipboard */
   val infoEditeur = new GridPanel(2,4){
     contents += new Label("Curseur :")
     contents += cursorLabel
@@ -39,14 +45,17 @@ class UIEditeur(editeur : Editeur) extends MainFrame with Observator {
     contents += selEndLabel
   }
 
-
+  /** Key to the recording macro*/
   var macroCouranteKey: String=""
+  /** The manager of macro, see [[editeur.MacroManager]]*/
   val macroManager = new MacroManager
   
+  // Input form for macro (start record, stop record, execute) 
+
   var keyMacro = new TextField
-  var buttonStartRecordMacro = new Button("Start macro")
-  var buttonStopRecordMacro = new Button("Stop macro")
-  var buttonDoMacro = new Button("Do macro")
+  var buttonStartRecordMacro = new Button("Start recording macro")
+  var buttonStopRecordMacro = new Button("Stop recording macro")
+  var buttonDoMacro = new Button("Exec macro")
   val macroPanel = new GridPanel(1,4){
     contents += keyMacro
     contents += buttonStartRecordMacro
@@ -54,6 +63,9 @@ class UIEditeur(editeur : Editeur) extends MainFrame with Observator {
     contents += buttonDoMacro
   }
 
+  /** Save the macro in the MacroManager, the key is the macroCouranteKey attribute
+  * @param a macro to save 
+  */
   def saveMacro(a: ActionTrait){
     if (macroCouranteKey!=""){
       var ac = macroManager.getMacro(macroCouranteKey)
@@ -71,43 +83,49 @@ class UIEditeur(editeur : Editeur) extends MainFrame with Observator {
 
     focusable = true
     requestFocusInWindow()
+
+    // listen user keyboard input and 4 buttons
     listenTo(this.keys, buttonStartRecordMacro, buttonStopRecordMacro,buttonDoMacro, buttonFocus)
     reactions += { 
       case ButtonClicked(b) => 
         b.text match {
-          case "Start macro" => 
+          case "Start recording macro" => 
             if (keyMacro.text != ""){
               macroCouranteKey = keyMacro.text
               macroManager.setMacro(macroCouranteKey, new ActionComposite)
             }
-          case "Stop macro" => macroCouranteKey = ""
-          case "Do macro" => macroManager.getMacro(keyMacro.text).exec(editeur, true)
+          case "Stop recording macro" => macroCouranteKey = ""
+          case "Exec macro" => macroManager.getMacro(keyMacro.text).exec(editeur, true)
           case "Remettre le focus" => 
             this.requestFocusInWindow()
             bufferContent.caret.visible =true
         }
 
       case x: KeyEvent =>
+        // bool to break the switch when a pattern match
         var bool=false
         (bool, x) match {
           case (false, KeyTyped(_, c, m, _) ) => 
-            //println("Typed :" + c + ","+m)
             (bool,c.toInt, m) match {
+              // backspace or Shift backspace
               case (false ,8, 0) | (false ,8, 64) => 
                 var a = new ActionEfface()
                 a.exec(editeur, false)
                 saveMacro(a)
                 bool = true
+              // Del or Shift Del
               case (false, 127, 0) | (false, 127,64) => 
                 var a = new ActionErase()
                 a.exec(editeur, false)
                 saveMacro(a) 
                 bool = true
+              // All others key
               case (false, _, 0) | (false,_, 64)=> 
                 var a = new ActionInsert(c.toString)
                 a.exec(editeur, false) 
                 saveMacro(a)
                 bool=true
+              // Default
               case (false, _, _)=>
             }
           case (false, KeyPressed(_, c, m, _)) =>
@@ -115,13 +133,11 @@ class UIEditeur(editeur : Editeur) extends MainFrame with Observator {
               //Key.left + ctrl + shift
               case (false, Key.Left, 192) =>
                 editeur.moveSelectionLeft()
-                editeur.cursor-=1
                 bool=true
-                update() // editeur.upObs ???
+                update()
               //Key.Right + ctrl + shift
               case (false, Key.Right, 192) => 
                 editeur.moveSelectionRight()
-                editeur.cursor+=1
                 bool=true
                 update()
               //Key.left
@@ -175,13 +191,14 @@ class UIEditeur(editeur : Editeur) extends MainFrame with Observator {
               case (false, _, _) =>
     
             }
-            //println("Pressed :" + c + " " + m)
           case (false, _) =>
         }
       
     }
   }
   
+
+  /** Updates display to correspond to editeur */
   def update(){
     bufferContent.text = editeur.buffer.text
     bufferContent.caret.position = editeur.cursor

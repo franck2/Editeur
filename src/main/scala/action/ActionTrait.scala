@@ -2,6 +2,7 @@ package action
 
 import editeur._
 
+/** Trait of an action*/
 trait ActionTrait{
 
 	//execute l'action en se basant sur le curseur

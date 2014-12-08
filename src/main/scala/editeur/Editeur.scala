@@ -4,119 +4,87 @@ import scala.swing.event._
 import java.awt.event._
 import scala.math._
 
+/**  Container of a [[editeur.Buffer]]
+* Add cursors, selection and clipboard 
+* extends [[editeur.Observator]] to observ its Buffer (an other Editeur can edit the same Buffer)
+* extends [[editeur.Observed]] to be observed by an UI
+*
+* @param buffer The Buffer to interact with
+*/
 class Editeur(var buffer: Buffer) extends Observator with Observed{
 
+  /** Constructeur with default parameter*/ 
   def this() = this(new Buffer)
+
+  /** Add itself as Observator of its Buffer*/
   buffer.addObservator(this)
 
+  /** Current position in the Buffer */
   private var _cursor : Integer= 0
   def cursor = _cursor
+  /** Setter of cursor, to make always valid (unsigned, lower than the buffer size)*/ 
   def cursor_=(i: Integer) { if (i>=0 && i<=buffer.text.length) _cursor = i }
   
+  /** Position of the begining of the selection*/
   private var _cursorSelectionBegin : Integer= 0
   def cursorSelectionBegin = _cursorSelectionBegin
+  /** Setter of cursorSelectionBegin, to make always valid (unsigned, lower than the buffer size)*/ 
   def cursorSelectionBegin_=(i: Integer) { if (i>=0 && i<=buffer.text.length) _cursorSelectionBegin = i }
 
+  /** Position of the end of the selection*/
   private var _cursorSelectionEnd : Integer= 0
   def cursorSelectionEnd = _cursorSelectionEnd
+  /** Setter of cursorSelectionEnd, to make always valid (unsigned, lower than the buffer size)*/ 
   def cursorSelectionEnd_=(i: Integer) { if (i>=0 && i<=buffer.text.length) _cursorSelectionEnd = i }
 
+  /** The clipboard, to conserv the copied text*/ 
+  var clipboard = ""
+
+  /** Setter of all cursors in the same time (cursors, cursorSelectionBegin,cursorSelectionEnd)
+  * @param i the value to affect to all cursors
+  **/
   def cursors(i:Integer){
     cursor = i
     cursorSelectionBegin = i
     cursorSelectionEnd = i
   }
 
-  var clipboard = ""
-  
-  //var maj = false
 
-  /*
-  def addString(s: String){
-    buffer.add(s, cursor)
-    cursor+=s.length
-    cursorSelectionBegin=cursor
-    cursorSelectionEnd=cursor
-    updateObs()
-  }
-
-  def efface(){
-    if (cursorSelectionEnd!=cursorSelectionBegin){
-      buffer.remove(cursorSelectionBegin, cursorSelectionEnd)
-      cursor=cursorSelectionBegin
-    }
-    else {
-      var bk_cursor = cursor
-      buffer.remove(cursor-1, cursor)
-      if (bk_cursor==cursor)
-        cursor-=1
-      cursorSelectionBegin=cursor
-      cursorSelectionEnd=cursor
-    }
-    
-    updateObs()
-  }
-
-  def erase(){
-    buffer.remove(cursor, cursor+1)
-    //updateObs()
-  }
-
-  def copy(){
-    clipboard = buffer.getSubstring(cursorSelectionBegin, cursorSelectionEnd)
-  }
-
-  def paste(){
-    addString(clipboard)
-  }
-
-  def cut(){
-    clipboard = buffer.getSubstring(cursorSelectionBegin, cursorSelectionEnd)
-    buffer.remove(cursorSelectionBegin, cursorSelectionEnd)
-    cursorSelectionBegin=cursor
-    cursorSelectionEnd=cursor
-  }
-
-  /*
-  def toogleMaj(){
-    maj = !maj
-  }
-  */
-  */
-
+  /** Update cursors corresponding to the buffer, then notify its observators*/ 
   def update(){
-    //println(cursor+" - " +buffer.text.length)
     cursor = math.min(cursor, buffer.text.length)
-    cursorSelectionBegin=cursor
-    cursorSelectionEnd=cursor
+    cursorSelectionBegin = math.min(cursorSelectionBegin, buffer.text.length)
+    cursorSelectionEnd = math.min(cursorSelectionEnd, buffer.text.length)
     updateObs()
   }
 
+  /** Move the selection to the left*/
   def moveSelectionLeft(){
     if (cursorSelectionEnd==cursor &&
       cursorSelectionEnd!=cursorSelectionBegin)
       cursorSelectionEnd-=1
     else
       cursorSelectionBegin-=1
+    cursor-=1
   }
+
+  /** Move the selection to the right*/
   def moveSelectionRight(){
     if (cursorSelectionBegin==cursor &&
       cursorSelectionEnd!=cursorSelectionBegin)
       cursorSelectionBegin+=1
     else
       cursorSelectionEnd+=1
+    cursor+=1
   }
 
-  def redo(){buffer.redo(this)}
-  def undo(){buffer.undo(this)}
-
-/*
-  def doMacro(key:String){
-    buffer.doMacro(key, this)
-  }*/
-
+  /** Returns true if there is a selection*/
   def hasSelection():Boolean = {
     return cursorSelectionEnd!=cursorSelectionBegin
   }
+
+
+  def redo(){buffer.redo(this)}
+  def undo(){buffer.undo(this)}
 
 }

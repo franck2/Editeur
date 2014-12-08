@@ -2,7 +2,10 @@ package action
 
 import editeur._
 
+/** A composition of [[action.ActionTrait]] */
 class ActionComposite extends ActionTrait {
+  
+  /** Components of the composite action */
   var actions : Array[ActionTrait] = Array()
   
   override def toString(): String = {
@@ -10,10 +13,13 @@ class ActionComposite extends ActionTrait {
     actions.foreach { str += _.toString() + "\n"} 
     str += "}"
     return str
-  };
+  }
+
 
   override def exec(e:Editeur,skipHisto:Boolean){
-  	for (a <- actions) a.exec(e,skipHisto)
+  	for (a <- actions) a.exec(e,false)
+    if (skipHisto)
+      e.buffer.histo.empileActionDo(this)
     e.updateObs()
   }
 
@@ -27,9 +33,13 @@ class ActionComposite extends ActionTrait {
     e.updateObs()
   }
 
+  /** Add an action
+  * @param a [[action.ActionTrait]] to add
+  */
   def addAction(a:ActionTrait){
     actions :+= a
   }
   
+  /** Returns true if actions is empty */
   def isEmpty():Boolean = actions.length==0
 }
