@@ -1,19 +1,26 @@
 package editeur;
 
-/** An [[editeur.Observed]] is observed by a [[editeur.Observator]] */
+/** An [[editeur.Observed]] is observed by a [[editeur.Observer]] */
 trait Observed{
 
-	/** Array of his Observators */
-	var obs : Array[Observator] = Array()
+	/** Array of his Observers */
+	var obs : Array[Observer] = Array()
 	
-	/** Add an Observator
-	* @param o observator to add
+	/** Add an Observer
+	* @param o Observer to add
 	*/
-	def addObservator(o: Observator){
+	def addObserver(o: Observer){
   		obs :+= o
   	}
 
-  	/** Call update an each Observator */
+  	/** Remove an Observer
+	* @param o Observer to remove
+	*/
+	def removeObserver(o: Observer){
+  		obs = (obs.toBuffer - o).toArray
+  	}
+
+  	/** Call update an each Observer */
 	def updateObs() { 
 		for (o <- obs) o.update() 
 	}

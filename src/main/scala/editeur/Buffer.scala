@@ -2,7 +2,7 @@ package editeur
 
 import action._
 
-/** The buffer containing the text and the history [[editeur.histo]]
+/** The buffer containing the text and the history [[editeur.Histo]]
  *  Extends [[editeur.Observed]]
  *
  *

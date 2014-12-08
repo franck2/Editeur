@@ -9,13 +9,13 @@ import action._
 /** User Interface showing the content of a [[editeur.Editeur]]
 * @param editeur the editeur to interact with
 */
-class UIEditeur(editeur : Editeur) extends MainFrame with Observator {
+class UIEditeur(editeur : Editeur) extends MainFrame with Observer {
   
   /** Constructor with default parameter */
   def this() = this(new Editeur)
 
-  /** Add itself as Observator of its Editeur*/
-  editeur.addObservator(this)
+  /** Add itself as Observer of its Editeur*/
+  editeur.addObserver(this)
 
   preferredSize = new Dimension(500, 500)
   title = "Editeur de texte"
@@ -152,9 +152,9 @@ class UIEditeur(editeur : Editeur) extends MainFrame with Observator {
                 update()
               //Ctrl+A
               case (false, Key.A, 128) => 
-                // TODO => def Action
-                editeur.cursorSelectionBegin=0
-                editeur.cursorSelectionEnd=editeur.buffer.text.length()
+                var a = new ActionSelectAll
+                a.exec(editeur, false)
+                saveMacro(a)
                 bool=true
                 update()
               //Ctrl+C

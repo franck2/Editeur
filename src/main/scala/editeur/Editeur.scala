@@ -6,18 +6,18 @@ import scala.math._
 
 /**  Container of a [[editeur.Buffer]]
 * Add cursors, selection and clipboard 
-* extends [[editeur.Observator]] to observ its Buffer (an other Editeur can edit the same Buffer)
+* extends [[editeur.Observer]] to observ its Buffer (an other Editeur can edit the same Buffer)
 * extends [[editeur.Observed]] to be observed by an UI
 *
 * @param buffer The Buffer to interact with
 */
-class Editeur(var buffer: Buffer) extends Observator with Observed{
+class Editeur(var buffer: Buffer) extends Observer with Observed{
 
   /** Constructeur with default parameter*/ 
   def this() = this(new Buffer)
 
-  /** Add itself as Observator of its Buffer*/
-  buffer.addObservator(this)
+  /** Add itself as Observer of its Buffer*/
+  buffer.addObserver(this)
 
   /** Current position in the Buffer */
   private var _cursor : Integer= 0
@@ -50,7 +50,7 @@ class Editeur(var buffer: Buffer) extends Observator with Observed{
   }
 
 
-  /** Update cursors corresponding to the buffer, then notify its observators*/ 
+  /** Update cursors corresponding to the buffer, then notify its Observers*/ 
   def update(){
     cursor = math.min(cursor, buffer.text.length)
     cursorSelectionBegin = math.min(cursorSelectionBegin, buffer.text.length)

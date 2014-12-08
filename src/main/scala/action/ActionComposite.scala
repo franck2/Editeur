@@ -10,15 +10,15 @@ class ActionComposite extends ActionTrait {
   
   override def toString(): String = {
     var str = "ActionComposite:  {" 
-    actions.foreach { str += _.toString() + "\n"} 
+    actions.foreach { str += _.toString() + ", "} 
     str += "}"
     return str
   }
 
 
   override def exec(e:Editeur,skipHisto:Boolean){
-  	for (a <- actions) a.exec(e,false)
-    if (skipHisto)
+  	for (a <- actions) a.exec(e,true)
+    if (!skipHisto)
       e.buffer.histo.empileActionDo(this)
     e.updateObs()
   }
@@ -39,6 +39,13 @@ class ActionComposite extends ActionTrait {
   def addAction(a:ActionTrait){
     actions :+= a
   }
+
+  /** Remove an Observer
+  * @param a [[action.ActionTrait]] to add
+  */
+  def removeAction(a:ActionTrait){
+      actions = (actions.toBuffer - a).toArray
+    }
   
   /** Returns true if actions is empty */
   def isEmpty():Boolean = actions.length==0
