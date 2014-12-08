@@ -21,6 +21,7 @@ class TestActionColler{
 		var acopy = new ActionCopier()
 		acopy.exec(edi, false)
 
+		edi.cursors(4)
 		var ac = new ActionColler()
 		ac.exec(edi, false) 
 

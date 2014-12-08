@@ -7,6 +7,8 @@ class ActionInsert(var str : String) extends ActionTrait {
 
   /** Constructor, default parameter*/
   def this() = this("")
+
+  var remove : ActionRemove = new ActionRemove
   
   /** Array of separators, use to split insertion in history*/
   val separators : Array[String] = Array(" ", "\n", "\t")
@@ -21,6 +23,10 @@ class ActionInsert(var str : String) extends ActionTrait {
   * @param skipHisto if it must skip the history
   */
   override def exec(e:Editeur, skipHisto:Boolean){
+    if (e.hasSelection){
+      remove = new ActionRemove(e.cursorSelectionBegin, e.cursorSelectionEnd)
+      remove.exec(e,false)
+    }
     startPos = e.cursor
   	e.buffer.add(str, startPos)
     e.cursors(e.cursor + str.length)
@@ -41,6 +47,8 @@ class ActionInsert(var str : String) extends ActionTrait {
     var bk= e.cursor
   	e.buffer.remove(startPos, startPos + str.length())
     e.cursors(bk - str.length)
+    if (remove.startPos != (-1) )
+      remove.undo(e)
     e.updateObs()
   }
 
